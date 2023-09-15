@@ -12,7 +12,7 @@ import wandb
 
 if __name__ == '__main__':
     wandb.init(project=args.project_name, name = args.save)
-    os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "3"
     checkpoint = utils.checkpoint(args)
     if checkpoint.ok:
         dataloaders = data.create_dataloaders(args)   # dataloaders为一个dict

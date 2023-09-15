@@ -71,7 +71,7 @@ class checkpoint():
         if args.save == '.':
             args.save = now
         else:
-            self.dir = '/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/' + args.save
+            self.dir = '/root/autodl-tmp/experiment/' + args.save
             # self.dir ='G:\proj\chaofen/final_proj\experiment\ournet'
 
         if args.resume == 1:  # 从中断中开始训练
