@@ -5,36 +5,42 @@
 ### 复现指标
 |scale|model|PSNR|SSIM|SCC|SAM|location|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx2|HAUNet|34.46|0.9333|0.6437|0.0488|论文|
 |UCx2|HAUNet|34.64|0.9349|0.6503|0.0478|137-HAUNETx2_UCMerced|
 |UCx2|HAUNet|34.47|0.9335|0.6452|0.0485|auto-HAUNETx2_UCMerced|
+|UCx3|HAUNet|30.34|0.8476|0.4236|0.0779|论文|
 |UCx3|HAUNet|30.30|0.8487|0.4257|0.0779|137-HAUNETx2_UCMerced|
+|UCx4|HAUNet|34.06|0.7726|0.2932|0.0997|论文|
 |UCx4|HAUNet|28.01|0.771|0.2900|0.0999|137-HAUNETx2_UCMerced|
 
 和原论文中的指标进行对比，整体来说复现差距很小，复现成功。其中x2超分比原文高0.18。
 
-### 测试一
+### 测试一(haunet_wjq.py)
 去掉双三次上采样操作
 |scale|model|PSNR|SSIM|SCC|SAM|location|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |UCx2|HAUNet|34.64|0.9349|0.6503|0.0478|137-HAUNETx2_UCMerced|
 |UCx2|HAUNet|34.47|0.9335|0.6452|0.0485|auto-HAUNETx2_UCMerced|
-|UCx2|HAUNet_wjq|34.50|0.9335|0.6442|0.0485|auto-HAUNETWJQx2_UCMerced|
+|*UCx2*|HAUNet_wjq|34.50|0.9335|0.6442|0.0485|auto-HAUNETWJQx2_UCMerced|
 
 
 ### Train
 ```bash
 # x4
 CUDA_VISIBLE_DEVICES=0 python demo_train.py --model=HAUNET --dataset=UCMerced --scale=4 --patch_size=192 --ext=img --save=HAUNETx4_UCMerced 
+# x3
+python demo_train.py --model=HAUNET --dataset=UCMerced --scale=3 --patch_size=144 --ext=img --save=HAUNETx3_UCMerced
 # x2
 python demo_train.py --model=HAUNET --dataset=UCMerced --scale=2 --patch_size=96 --ext=img --save=HAUNETx2_UCMerced
 ```
 输入LR的大小被裁剪为:48*48，同时有一个数据预处理（包括随机水平、垂直翻转、随机旋转90°，以及添加噪声）。
 
-添加wandb后的Train
+### 添加wandb后的Train
 ```bash
 # x4
 CUDA_VISIBLE_DEVICES=0 python demo_train.py --project_name=SRx4 --model=HAUNET_V1 --dataset=UCMerced --scale=4 --patch_size=192 --ext=img --save=HAUNETV1x4_UCMerced 
 ```
+其中`project_name`为wandb的工程名。
 
 
 ### Test
@@ -44,5 +50,14 @@ python demo_deploy.py --scale=2 --model=HAUNET --patch_size=128 --test_block --p
 # auto x2
 python demo_deploy.py --scale=2 --model=HAUNET_WJQ --patch_size=128 --test_block --pre_train=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/model/model_best.pt --dir_data=/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/LR_x2 --dir_out=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results
 ```
-
 以64x64为block进行测试。
+
+## HAUNET的相关参数
+```bash
+HAUNet(up_scale=args.scale[0], width=96, enc_blk_nums=[5,5],dec_blk_nums=[5,5],middle_blk_num=10)
+```
+- `up_scale`：放大倍数
+- `width`：
+- `enc_blk_nums`：
+- `dec_blk_nums`：
+- `middle_blk_nums`：
