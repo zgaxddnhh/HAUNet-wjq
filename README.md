@@ -32,20 +32,13 @@
 ### Train
 ```bash
 # x4
-CUDA_VISIBLE_DEVICES=0 python demo_train.py --model=HAUNET --dataset=UCMerced --scale=4 --patch_size=192 --ext=img --save=HAUNETx4_UCMerced 
+python demo_train.py --model=HAUNET --dataset=UCMerced --scale=4 --patch_size=192 --ext=img --save=HAUNETx4_UCMerced 
 # x3
 python demo_train.py --model=HAUNET --dataset=UCMerced --scale=3 --patch_size=144 --ext=img --save=HAUNETx3_UCMerced
 # x2
 python demo_train.py --model=HAUNET --dataset=UCMerced --scale=2 --patch_size=96 --ext=img --save=HAUNETx2_UCMerced
 ```
 输入LR的大小被裁剪为:48*48，同时有一个数据预处理（包括随机水平、垂直翻转、随机旋转90°，以及添加噪声）。
-
-### 添加wandb后的Train
-```bash
-# x4
-CUDA_VISIBLE_DEVICES=0 python demo_train.py --project_name=SRx4 --model=HAUNET_V1 --dataset=UCMerced --scale=4 --patch_size=192 --ext=img --save=HAUNETV1x4_UCMerced 
-```
-其中`project_name`为wandb的工程名。
 
 
 ### Test

@@ -83,7 +83,7 @@ parser.add_argument('--de_depth', type=int, default=1,
 # training specifications
 parser.add_argument('--reset', action='store_true', default=False,  
                     help='reset the training')  # 删除文件夹重新训练
-parser.add_argument('--epochs', type=int, default=10,
+parser.add_argument('--epochs', type=int, default=2000,
                     help='number of epochs to train')
 parser.add_argument('--batch_size', type=int, default=8,
                     help='input batch size for training') # 之前为4，现在设为8
