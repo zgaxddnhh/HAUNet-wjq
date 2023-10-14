@@ -10,6 +10,8 @@ import trainer
 import os 
 import datetime
 import wandb
+from torch.utils.tensorboard import SummaryWriter
+
 
 def seed_torch(seed=42):
 	random.seed(seed)
@@ -24,9 +26,10 @@ def seed_torch(seed=42):
 
 if __name__ == '__main__':
     seed_torch(args.seed)
-    wandb.init(project=args.project_name, name = args.save)
+    # wandb.init(project=args.project_name, name = args.save)
     os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     checkpoint = utils.checkpoint(args)
+    writer = SummaryWriter("/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/"+ args.save + "/runs")
     if checkpoint.ok:
         dataloaders = data.create_dataloaders(args)   # dataloaders为一个dict
         sr_model = model.Model(args, checkpoint)
@@ -41,9 +44,11 @@ if __name__ == '__main__':
         while not t.terminate():
             t.train()
             t.test()
-            wandb.log({'epoch':t.scheduler.last_epoch, 'L1 loss': t.loss.log[-1].numpy(), 'psnr':t.ckp.log[-1].numpy()})
+            # wandb.log({'epoch':t.scheduler.last_epoch, 'L1 loss': t.loss.log[-1].numpy(), 'psnr':t.ckp.log[-1].numpy()})
+            writer.add_scalar("L1 loss",t.loss.log[-1].numpy(), t.scheduler.last_epoch)
+            writer.add_scalar("psnr",t.ckp.log[-1].numpy(), t.scheduler.last_epoch)
 
     end = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
     t.ckp.write_log("end_time:" + end + '\n')
     checkpoint.done()
-    wandb.finish()
+    # wandb.finish()
