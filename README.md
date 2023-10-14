@@ -62,13 +62,3 @@ python demo_deploy.py --scale=2 --model=HAUNET_WJQ --patch_size=128 --test_block
 cd metric_scripts 
 python calculate_metric.py
 ```
-
-## HAUNET的相关参数
-```bash
-HAUNet(up_scale=args.scale[0], width=96, enc_blk_nums=[5,5],dec_blk_nums=[5,5],middle_blk_num=10)
-```
-- `up_scale`：放大倍数
-- `width`：
-- `enc_blk_nums`：
-- `dec_blk_nums`：
-- `middle_blk_nums`：

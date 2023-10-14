@@ -25,7 +25,7 @@ def seed_torch(seed=42):
 if __name__ == '__main__':
     seed_torch(args.seed)
     wandb.init(project=args.project_name, name = args.save)
-    # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     checkpoint = utils.checkpoint(args)
     if checkpoint.ok:
         dataloaders = data.create_dataloaders(args)   # dataloaders为一个dict

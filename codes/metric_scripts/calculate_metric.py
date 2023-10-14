@@ -14,10 +14,10 @@ def main():
 
     # GT - Ground-truth;
     # Gen: Generated / Restored / Recovered images
-    # folder_GT = 'G:\datasets\yaogan\dataset/UCMerced-dataset/test\HR_x4'
-    # folder_Gen = '../experiment/results\HAUNETx4_UCMerced'
-    folder_GT = '/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/HR_x2'
-    folder_Gen = '/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results'
+    folder_GT = '/home/wjq/wjqHD/RSISR/datasets/HAUNet/UCMerced-dataset/test/HR_x2'
+    folder_Gen = '/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/HAUNETx2_UCMerced/results'
+    # folder_GT = '/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/HR_x2'
+    # folder_Gen = '/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results'
 
     crop_border = 2  # same with scale
     suffix = ''  # suffix for Gen images

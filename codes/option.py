@@ -16,7 +16,7 @@ parser.add_argument('--cpu', action='store_true', default=False,
                     help='use cpu only')
 parser.add_argument('--n_GPUs', type=int, default=1,
                     help='number of GPUs')
-parser.add_argument('--seed', type=int, default=1,
+parser.add_argument('--seed', type=int, default=42,
                     help='random seed')
 
 # data specifications
