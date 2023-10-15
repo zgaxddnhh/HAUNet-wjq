@@ -15,6 +15,11 @@
 
 和原论文中的指标进行对比，整体来说复现差距很小，复现成功。其中x2超分比原文高0.18。
 
+#### 随机种子42
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx4|HAUNet|27.75|0.7633|0.2717|0.1028|auto-HAUNETx4_UCMerced_42_patch|
+|UCx4|HAUNet|27.86|0.7669|0.2809|0.1017|auto-HAUNETx4_UCMerced_42_whole|
 ### 测试一(haunet_wjq.py)
 去掉双三次上采样操作
 |scale|model|PSNR|SSIM|SCC|SAM|location|

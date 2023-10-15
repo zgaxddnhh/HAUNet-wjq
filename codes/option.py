@@ -13,7 +13,7 @@ parser.add_argument('--cpu', action='store_true', default=False,
                     help='use cpu only')
 parser.add_argument('--n_GPUs', type=int, default=1,
                     help='number of GPUs')
-parser.add_argument('--seed', type=int, default=42,
+parser.add_argument('--seed', type=int, default=1,
                     help='random seed')
 
 # data specifications
@@ -51,7 +51,7 @@ parser.add_argument('--test_y', action='store_true', default=False,
                     help='test on Y channel')
 parser.add_argument('--test_patch', action='store_true', default=False,
                     help='test on patches rather than the whole image')
-parser.add_argument('--test_block', action='store_true', default=True,
+parser.add_argument('--test_block', action='store_true', default=False,
                     help='test by blcok-by-block')
 
 # model specifications
