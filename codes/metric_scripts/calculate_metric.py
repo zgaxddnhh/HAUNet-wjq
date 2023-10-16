@@ -16,7 +16,7 @@ def main():
     # Gen: Generated / Restored / Recovered images
     # folder_GT = '/home/wjq/wjqHD/RSISR/datasets/HAUNet/UCMerced-dataset/test/HR_x2'
     # folder_Gen = '/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/HAUNETx2_UCMerced/results'
-    folder_GT = '/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/HR_x4'
+    # folder_GT = '/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/HR_x4'
     folder_Gen = '/root/autodl-tmp/experiment/HAUNETx4_UCMerced_42a/whole_results'
 
     crop_border = 4  # same with scale
