@@ -20,6 +20,15 @@
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |UCx4|HAUNet|27.75|0.7633|0.2717|0.1028|auto-HAUNETx4_UCMerced_42_patch|
 |UCx4|HAUNet|27.86|0.7669|0.2809|0.1017|auto-HAUNETx4_UCMerced_42_whole|
+
+### 随机种子1
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx2|HAUNet|34.56|0.9340|0.6465|0.0483|auto-HAUNETx2_UCMerced_1|
+|UCx4|HAUNet|27.97|0.7708|0.2883|0.1007|auto-HAUNETx4_UCMerced_1|
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+
 ### 测试一(haunet_wjq.py)
 去掉双三次上采样操作
 |scale|model|PSNR|SSIM|SCC|SAM|location|
