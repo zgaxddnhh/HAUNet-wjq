@@ -51,7 +51,7 @@ parser.add_argument('--test_y', action='store_true', default=False,
                     help='test on Y channel')
 parser.add_argument('--test_patch', action='store_true', default=False,
                     help='test on patches rather than the whole image')
-parser.add_argument('--test_block', action='store_true', default=False,
+parser.add_argument('--test_block', action='store_true', default=True,
                     help='test by blcok-by-block')
 
 # model specifications
