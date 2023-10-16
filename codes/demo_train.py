@@ -12,7 +12,7 @@ import datetime
 from torch.utils.tensorboard import SummaryWriter
 
 
-def seed_torch(seed=42):
+def seed_torch(seed=1):
 	random.seed(seed)
 	os.environ['PYTHONHASHSEED'] = str(seed) # 为了禁止hash随机化，使得实验可复现
 	np.random.seed(seed)
@@ -27,8 +27,8 @@ if __name__ == '__main__':
     seed_torch(args.seed)
     # os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     checkpoint = utils.checkpoint(args)
-    # writer = SummaryWriter("/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/"+ args.save + "/runs")
-    writer = SummaryWriter("/root/autodl-tmp/experiment/"+ args.save + "/runs")
+    writer = SummaryWriter("/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/"+ args.save + "/runs")
+    # writer = SummaryWriter("/root/autodl-tmp/experiment/"+ args.save + "/runs")
     if checkpoint.ok:
         dataloaders = data.create_dataloaders(args)   # dataloaders为一个dict
         sr_model = model.Model(args, checkpoint)
