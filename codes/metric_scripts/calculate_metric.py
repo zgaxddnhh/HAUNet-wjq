@@ -14,8 +14,8 @@ def main():
 
     # GT - Ground-truth;
     # Gen: Generated / Restored / Recovered images
-    # folder_GT = '/home/wjq/wjqHD/RSISR/datasets/HAUNet/UCMerced-dataset/test/HR_x2'
-    # folder_Gen = '/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/HAUNETx2_UCMerced/results'
+    # folder_GT = '/home/wjq/wjqHD/RSISR/datasets/HAUNet/UCMerced-dataset/test/HR_x3'
+    # folder_Gen = '/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/HAUNETx3_UCMerced_42/results'
     folder_GT = '/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/HR_x2'
     folder_Gen = '/root/autodl-tmp/experiment/HAUNETx2_UCMerced_1/results'
 
