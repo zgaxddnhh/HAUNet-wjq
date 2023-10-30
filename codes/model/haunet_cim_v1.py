@@ -1,8 +1,11 @@
-
+"""
+修改CIM模型——v1
+"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
+
 def make_model(args, parent=False):
     return HAUNet(up_scale=args.scale[0], width=96, enc_blk_nums=[5,5],dec_blk_nums=[5,5],middle_blk_num=10)
 
@@ -31,8 +34,8 @@ class LayerNormFunction(torch.autograd.Function):
         gx = 1. / torch.sqrt(var + eps) * (g - y * mean_gy - mean_g)
         return gx, (grad_output * y).sum(dim=3).sum(dim=2).sum(dim=0), grad_output.sum(dim=3).sum(dim=2).sum(
             dim=0), None
+    
 class LayerNorm2d(nn.Module):
-
     def __init__(self, channels, eps=1e-6):
         super(LayerNorm2d, self).__init__()
         self.register_parameter('weight', nn.Parameter(torch.ones(channels)))
@@ -145,6 +148,7 @@ class Reconstruct(nn.Module):
         if self.scale_factor!=1:
             x = nn.Upsample(scale_factor=self.scale_factor)(x)
         return x
+    
 class qkvblock(nn.Module):  
     def __init__(self, c, num_heads=2, FFN_Expand=2):
         super().__init__()
@@ -279,6 +283,7 @@ class qkvblock(nn.Module):
         outs.append(out1)
         outs.append(out2)
         return outs
+
 class lateral_nafblock(nn.Module):  # CIM模块
     def __init__(self, c,num_heads=3,num_block=1):
         super().__init__()
@@ -291,7 +296,56 @@ class lateral_nafblock(nn.Module):  # CIM模块
         for qkv in self.qkv:
             outs=qkv(outs)
         return outs
-    
+
+class wjq_lateral_nafblock1(nn.Module):
+    def __init__(self, c):
+        super().__init__()
+        self.e0_d_conv = nn.Conv2d(c, c//2, kernel_size=1)
+        self.e0_u_conv = nn.Conv2d(c//2, c, kernel_size=1)
+        self.e0_conv = nn.Conv2d(c, c, kernel_size=3, padding=1)
+
+        self.e1_d_conv = nn.Conv2d(c, c//2, kernel_size=1)
+        self.e1_conv = nn.Conv2d(c, c, kernel_size=3, padding=1)
+
+        self.e1_to_e2 = nn.Conv2d(c, c//2, kernel_size=1)
+        self.e2_d_conv = nn.Conv2d(c, c//2, kernel_size=1)
+        self.e2_conv = nn.Conv2d(c, c, kernel_size=3, padding=1)        
+
+        self.act = nn.ReLU(inplace=True)
+        
+
+    def forward(self, encs):
+        enc0, enc1, enc2 = encs[0], encs[1], encs[2]
+
+        # 对encoder0进行处理
+        x_d_0 = self.act(self.e0_d_conv(enc0))
+        x_u_0 = self.act(self.e0_u_conv(x_d_0))
+        x0 = self.act(self.e0_conv(x_u_0))
+        out0 = enc0 + x0
+
+        # 对encoder1进行处理
+        enc1= nn.Upsample(scale_factor=2)(enc1) # 第二个encoder
+        x_d_1 = self.act(self.e1_d_conv(enc1))
+        x_u_1 = torch.cat([x_d_0, x_d_1], dim=1)  # 拼接
+        x1 = self.act(self.e1_conv(x_u_1)) 
+        out1 = enc1 + x1
+        out1 = nn.Upsample(scale_factor=0.5)(out1) 
+
+        # 对encoder2进行处理
+        enc2 = nn.Upsample(scale_factor=4)(enc2) # 第三个encoder
+        x_d_2 = self.act(self.e2_d_conv(enc2))
+        x_e1_to_e2 = self.act(self.e1_to_e2(x_u_1))
+        x_u_1 = torch.cat([x_e1_to_e2, x_d_2], dim=1)
+        x2 = self.act(self.e2_conv(x_u_1))
+        out2 = enc2 + x2
+        out2 = nn.Upsample(scale_factor=0.25)(out2)
+
+        outs = []
+        outs.append(out0)
+        outs.append(out1)
+        outs.append(out2)
+        return outs
+
 class wjq_lateral_nafblock(nn.Module): # wjq的CIM模块
     def __init__(self, c):
         self.e2_conv1x1 = nn.Conv2d(c, c//2, kernel_size=1)
@@ -497,8 +551,8 @@ class CEMBlock(nn.Module):
         x = self.dropout2(x)
 
         return y + x * self.gamma
+    
 class HAUNet(nn.Module):
-
     def __init__(self, up_scale=4, img_channel=3, width=180, middle_blk_num=10, enc_blk_nums=[5,5], dec_blk_nums=[5,5], heads = [1,2,4],):
         super().__init__()
 
@@ -532,7 +586,7 @@ class HAUNet(nn.Module):
                 nn.Conv2d(chan, chan, 2, 2)
             )
             ii+=1
-        self.wjq_lateral_nafblock = lateral_nafblock(chan)
+        self.wjq_lateral_nafblock = wjq_lateral_nafblock1(chan)
         self.enc_middle_blks = \
             nn.Sequential(
                 *[CEMBlock(chan, num_heads=heads[ii]) for _ in range(middle_blk_num // 2)]

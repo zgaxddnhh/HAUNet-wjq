@@ -97,7 +97,7 @@ parser.add_argument('--test_metric', type=str, default='psnr',
                     help='for best model selection in test phase (psnr, ssim)')
 
 # optimization specifications
-parser.add_argument('--lr', type=float, default=8e-4,
+parser.add_argument('--lr', type=float, default=11e-4,
                     help='learning rate')
 parser.add_argument('--eta_min', type=float, default=1e-7,
                     help='learning rate')  # 最小的学习率

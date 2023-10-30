@@ -27,20 +27,25 @@
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |UCx3|HAUNet|30.36|0.8485|0.4275|0.0777|auto-HAUNETx3_UCMerced_b4|
 
-## auto复现结果（随机种子=1，batch_size=8）
+## auto复现结果（随机种子=1，batch_size=8，lr=0.0008）
 |scale|model|PSNR|SSIM|SCC|SAM|location|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |UCx2|HAUNet|34.56|0.9340|0.6465|0.0483|auto-HAUNETx2_UCMerced_1|
 |UCx3|HAUNet|30.25|0.8471|0.4221|0.0786|auto-HAUNETx3_UCMerced_1|
 |UCx4|HAUNet|27.97|0.7708|0.2883|0.1007|auto-HAUNETx4_UCMerced_1|
 
-### lr=0.0016 4倍超分
+## auto复现结果（随机种子=1，batch_size=8，lr=0.0011）\
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx2|HAUNet|34.503664|0.933529|0.645193|0.048577|auto-HAUNETx2_UCMerced_s1_b8|
+|UCx3|HAUNet|30.372846|0.848352|0.426527|0.077667|auto-HAUNETx3_UCMerced_s1_b8|
+|UCx4|HAUNet|28.033755|0.772385|0.292654|0.100051|auto-HAUNETx4_UCMerced_s1_b8|
+
+### lr=0.0016 4倍超分 HAUNETx4_UCMerced_s1_b8_lr16
 Average: PSNR: 27.910537 dB, SSIM: 0.768060, SAM: 0.101240, QI: 0.990916, SCC: 0.283339
 
-### lr=0.0011 3倍超分
-Average: PSNR: 30.372846 dB, SSIM: 0.848352, SAM: 0.077667, QI: 0.994334, SCC: 0.426527
-> *按照各种复现实验的结果来看，在接下来的实验中，设置随机种子=1，batch_size=8，lr=0.0011进行实验。*
 
+> *按照各种复现实验的结果来看，在接下来的实验中，设置随机种子=1，batch_size=8，lr=0.0011进行实验。*
 # Train
 ```bash
 # x4
