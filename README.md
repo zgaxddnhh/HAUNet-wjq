@@ -44,6 +44,11 @@
 ### lr=0.0016 4倍超分 HAUNETx4_UCMerced_s1_b8_lr16
 Average: PSNR: 27.910537 dB, SSIM: 0.768060, SAM: 0.101240, QI: 0.990916, SCC: 0.283339
 
+# 实验
+## haunet_cim_v1
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx3|HAUNet|30.242153|0.845377|0.419540|0.078712|auto-HAUNETx3_UCMerced_s1_b8|
 
 > *按照各种复现实验的结果来看，在接下来的实验中，设置随机种子=1，batch_size=8，lr=0.0011进行实验。*
 # Train
@@ -64,13 +69,13 @@ python demo_deploy.py --scale=2 --model=HAUNET --patch_size=128 --test_block --p
 # x2
 python demo_deploy.py --scale=2 --model=HAUNET_WJQ --patch_size=128 --test_block --pre_train=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/model/model_best.pt --dir_data=/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/LR_x2 --dir_out=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results
 # x3
-python demo_deploy.py --scale=3 --model=HAUNET --patch_size=192 --test_block --pre_train=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/model/model_best.pt --dir_data=/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/LR_x2 --dir_out=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results
+python demo_deploy.py --scale=3 --model=HAUNET --patch_size=192 --test_block --pre_train=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/model/model_best.pt --dir_data=/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/LR_x3 --dir_out=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results
 # x4
-python demo_deploy.py --scale=4 --model=HAUNET_WJQ --patch_size=256 --test_block --pre_train=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/model/model_best.pt --dir_data=/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/LR_x2 --dir_out=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results
+python demo_deploy.py --scale=4 --model=HAUNET_WJQ --patch_size=256 --test_block --pre_train=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/model/model_best.pt --dir_data=/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/LR_x4 --dir_out=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results
 ```
 以`64x64`为block进行测试。2倍时`pathch_size=128`，3倍时`patch_size=192`，4倍时`patch_size=256`。
 
-### 评估指标
+# 评估指标
 ```bash
 cd metric_scripts 
 python calculate_metric.py

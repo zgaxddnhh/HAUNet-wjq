@@ -706,9 +706,9 @@ def print_network(net):
 if __name__ == '__main__':
     import time
     from thop import profile
-    net = HAUNet(up_scale=2, width=96, enc_blk_nums=[5,5],dec_blk_nums=[5,5],middle_blk_num=10).cuda()
+    net = HAUNet(up_scale=4, width=96, enc_blk_nums=[5,5],dec_blk_nums=[5,5],middle_blk_num=10).cuda()
     torch.cuda.reset_max_memory_allocated()
-    x = torch.rand(1, 3, 16, 16).cuda()
+    x = torch.rand(1, 3, 64, 64).cuda()
     y = net(x)
     # 获取模型最大内存消耗
     max_memory_reserved = torch.cuda.max_memory_reserved(device='cuda') / (1024 ** 2)
