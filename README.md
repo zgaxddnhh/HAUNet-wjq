@@ -45,10 +45,21 @@
 Average: PSNR: 27.910537 dB, SSIM: 0.768060, SAM: 0.101240, QI: 0.990916, SCC: 0.283339
 
 # 实验
+> 接下来的所有实验不同放大倍数保存在相对应的文件夹里面,并且所有的基础实验都在x4倍超分下进行。
+## haunet_wo_cim
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx4|HAUNet|27.994505|0.771606|0.290887|0.100234|x4/HAUNET_WO_CIM_UCMerced|
+
 ## haunet_cim_v1
 |scale|model|PSNR|SSIM|SCC|SAM|location|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-|UCx3|HAUNet|30.242153|0.845377|0.419540|0.078712|auto-HAUNETx3_UCMerced_s1_b8|
+|UCx3|HAUNet|30.242153|0.845377|0.419540|0.078712|auto-x3/HAUNET_CIM_V1_UCMerced|
+
+## haunet_cim_v2
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx4|HAUNet|27.922912 |0.768586|0.285181|0.101022|x4/HAUNET_CIM_V2_UCMerced|
 
 > *按照各种复现实验的结果来看，在接下来的实验中，设置随机种子=1，batch_size=8，lr=0.0011进行实验。*
 # Train
@@ -80,3 +91,9 @@ python demo_deploy.py --scale=4 --model=HAUNET_WJQ --patch_size=256 --test_block
 cd metric_scripts 
 python calculate_metric.py
 ```
+
+# 实验结论
+1. 无论是使用插值，还是硬train一发，对结果影响不大。
+2. 对通道注意力使用残差连接的影响？
+3. 将unsample换为转置卷积的影响
+4. 在卷积后面添加激活函数的影响

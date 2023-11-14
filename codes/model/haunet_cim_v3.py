@@ -1,6 +1,6 @@
 """
 使用MMFU替代CIM连接
-flops: 5.0543 G, params: 2.4141 M
+flops: 11.0422 G, params: 4.1749 M
 """
 import torch
 import torch.nn as nn
@@ -317,13 +317,13 @@ class CA(nn.Module):
         
         y = self.avg_pool(x)  # (32,64,1,1)
         y = self.conv_du(y)  # (32,64,1,1)
-        return x * y  # (32,64,32,32)   
+        return x * y + x # (32,64,32,32)   
     
 class MMFU(nn.Module):
     def __init__(self, c):
         super().__init__()
         # 1x1卷积
-        print("c is: ",c)
+        # print("c is: ",c)
         self.conv = nn.Conv2d(3*c, c, kernel_size=1)
         # 通道注意力
         self.ca = CA(c)
@@ -342,6 +342,20 @@ class lateral_nafblock_wjq(nn.Module):
         self.MMFU_1 = MMFU(c)
         self.MMFU_2 = MMFU(c)
 
+        
+        # 针对encoder0
+        self.enc2_0_dconvx2 = nn.ConvTranspose2d(c, c, 8, 2, 3)
+        self.enc1_0_dconvx2 = nn.ConvTranspose2d(c, c, 8, 2, 3)
+
+        # 针对encoder1
+        self.enc0_1_convx2 = nn.Conv2d(c, c, 3, 2, 1)
+        self.enc2_1_dconvx2 = nn.ConvTranspose2d(c, c, 6, 2, 2)
+
+        # 针对encoder2
+        self.enc0_2_convx2 = nn.Conv2d(c, c, 3, 2, 1)
+        self.enc1_2_convx2 = nn.Conv2d(c, c, 3, 2, 1)
+
+
     def forward(self, encs):
         enc0, enc1, enc2 = encs[0], encs[1], encs[2]
         
@@ -352,8 +366,9 @@ class lateral_nafblock_wjq(nn.Module):
         首先将enc1和enc2上采样,然后三个尺度进行cat,
         再1x1卷积降维,最后使用一个通道注意力
         """
-        enc1_0 = nn.Upsample(scale_factor=2)(enc1)
-        enc2_0 = nn.Upsample(scale_factor=4)(enc2)
+        enc1_0 = self.enc1_0_dconvx2(enc1) # 48*48
+        enc2_0 = self.enc2_0_dconvx2(enc2) # 24*24
+        enc2_0 = self.enc2_0_dconvx2(enc2_0) # 48*48
         y0 = torch.cat([enc0, enc1_0, enc2_0], dim=1)
         out0 = self.MMFU_0(y0)
         outs.append(out0)
@@ -362,8 +377,8 @@ class lateral_nafblock_wjq(nn.Module):
         """
         首先将enc0下采样,enc2上采样
         """
-        enc0_1 = nn.Upsample(scale_factor=0.5)(enc0)
-        enc2_1 = nn.Upsample(scale_factor=2)(enc2)
+        enc0_1 = self.enc0_1_convx2(enc0)  # 24*24
+        enc2_1 = self.enc2_1_dconvx2(enc2) # 24*24 
         y1 = torch.cat([enc0_1, enc1, enc2_1], dim=1)
         out1 = self.MMFU_1(y1)
         outs.append(out1)
@@ -372,8 +387,11 @@ class lateral_nafblock_wjq(nn.Module):
         """
         首先将enc0, enc1进行下采样
         """
-        enc0_2 = nn.Upsample(scale_factor=0.25)(enc0)
-        enc1_2 = nn.Upsample(scale_factor=0.5)(enc1)
+        # enc0_2 = nn.Upsample(scale_factor=0.25)(enc0)
+        # enc1_2 = nn.Upsample(scale_factor=0.5)(enc1)
+        enc0_2 = self.enc0_2_convx2(enc0) # 24*24
+        enc0_2 = self.enc0_2_convx2(enc0_2) # 12*12
+        enc1_2 = self.enc1_2_convx2(enc1) # 12*12
         y2 = torch.cat([enc0_2, enc1_2, enc2], dim=1)
         out2 = self.MMFU_2(y2)
         outs.append(out2)

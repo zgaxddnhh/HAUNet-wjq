@@ -1,5 +1,6 @@
 """
 去掉CIM连接
+flops: 4.9052 G, params: 2.3271 M
 """
 import torch
 import torch.nn as nn
