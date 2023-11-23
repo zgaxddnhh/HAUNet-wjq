@@ -25,10 +25,10 @@ def seed_torch(seed=1):
 
 if __name__ == '__main__':
     seed_torch(args.seed)
-    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     checkpoint = utils.checkpoint(args)
-    writer = SummaryWriter("/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/"+ args.save + "/runs")
-    # writer = SummaryWriter("/root/autodl-tmp/experiment/"+ args.save + "/runs")
+    # writer = SummaryWriter("/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/"+ args.save + "/runs")
+    writer = SummaryWriter("/root/autodl-tmp/experiment/x4/"+ args.save + "/runs")
     if checkpoint.ok:
         dataloaders = data.create_dataloaders(args)   # dataloaders为一个dict
         sr_model = model.Model(args, checkpoint)
