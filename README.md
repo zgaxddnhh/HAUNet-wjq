@@ -44,12 +44,16 @@
 ### lr=0.0016 4倍超分 HAUNETx4_UCMerced_s1_b8_lr16
 Average: PSNR: 27.910537 dB, SSIM: 0.768060, SAM: 0.101240, QI: 0.990916, SCC: 0.283339
 
+> *按照各种复现实验的结果来看，在接下来的实验中，设置随机种子=1，batch_size=8，lr=0.0011进行实验。*
+
 # 实验
 > 接下来的所有实验不同放大倍数保存在相对应的文件夹里面,并且所有的基础实验都在x4倍超分下进行。
 ## haunet_wo_cim
 |scale|model|PSNR|SSIM|SCC|SAM|location|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |UCx4|HAUNet|27.994505|0.771606|0.290887|0.100234|x4/HAUNET_WO_CIM_UCMerced|
+
+> 去掉CIM模块，直接使用跳跃连接相连
 
 ## haunet_cim_v1
 |scale|model|PSNR|SSIM|SCC|SAM|location|
@@ -61,7 +65,15 @@ Average: PSNR: 27.910537 dB, SSIM: 0.768060, SAM: 0.101240, QI: 0.990916, SCC: 0
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |UCx4|HAUNet|27.922912 |0.768586|0.285181|0.101022|x4/HAUNET_CIM_V2_UCMerced|
 
-> *按照各种复现实验的结果来看，在接下来的实验中，设置随机种子=1，batch_size=8，lr=0.0011进行实验。*
+> 将CIM模块替换为MMFU模块
+
+## haunet_cim_v3
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx4|HAUNet|27.596769 |0.756981|0.257580|0.104743|x4/HAUNET_CIM_V3_UCMerced|
+
+
+
 # Train
 ```bash
 # x4
