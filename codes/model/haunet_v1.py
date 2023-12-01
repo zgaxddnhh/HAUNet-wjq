@@ -1,5 +1,5 @@
 """
-haunet_v5.py
+haunet_v1.py
 flops: 1.6414G, params: 2.8768M
 """
 import torch

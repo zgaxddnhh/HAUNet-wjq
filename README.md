@@ -76,9 +76,15 @@ Average: PSNR: 27.910537 dB, SSIM: 0.768060, SAM: 0.101240, QI: 0.990916, SCC: 0
 ## haunet_cim_v4
 |scale|model|PSNR|SSIM|SCC|SAM|location|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-|UCx2|HAUNet|34.596980 |0.934544|0.648512|0.047955|x3/HAUNET_CIM_V4_UCMerced|
+|UCx2|HAUNet|34.596980 |0.934544|0.648512|0.047955|x2/HAUNET_CIM_V4_UCMerced|
 |UCx3|HAUNet|30.335350 |0.846036|0.424803|0.078084|x3/HAUNET_CIM_V4_UCMerced|
 |UCx4|HAUNet|28.065712 |0.772413|0.291110|0.099449|x4/HAUNET_CIM_V4_UCMerced|
+
+
+## haunet_v1
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx4 |HAUNet|27.744365|0.761731|0.272299|0.103118|x4/HAUNET_V1_UCMerced|
 
 
 # Train
