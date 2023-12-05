@@ -87,6 +87,14 @@ Average: PSNR: 27.910537 dB, SSIM: 0.768060, SAM: 0.101240, QI: 0.990916, SCC: 0
 |UCx4 |HAUNet|27.744365|0.761731|0.272299|0.103118|x4/HAUNET_V1_UCMerced|
 
 
+## haunet_v2
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx4 |HAUNet|28.042765|0.772279|0.292276|0.099795|x4/HAUNET_v2_UCMerced|
+|UCx3 |HAUNet|30.333430|0.846653|0.426038|0.078025|x3/HAUNET_v2_UCMerced|
+
+
+Average: PSNR: 30.333430 dB, SSIM: 0.846653, SAM: 0.078025, QI: 0.994291, SCC: 0.426038
 # Train
 ```bash
 # x4
