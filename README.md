@@ -92,11 +92,23 @@ Average: PSNR: 27.910537 dB, SSIM: 0.768060, SAM: 0.101240, QI: 0.990916, SCC: 0
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |UCx4 |HAUNet|28.042765|0.772279|0.292276|0.099795|x4/HAUNET_v2_UCMerced|
 |UCx3 |HAUNet|30.333430|0.846653|0.426038|0.078025|x3/HAUNET_v2_UCMerced|
+|UCx2 |HAUNet|34.483910|0.933892|0.645958|0.048602|x3/HAUNET_v2_UCMerced|
+
+## haunet_v3
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx4 |HAUNet|27.951831|0.769129|0.285571|0.100846|x4/HAUNET_v3_UCMerced|
+
+### lr=15
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx4 |HAUNet|27.622927|0.757825|0.260272|0.104356|x4/HAUNET_v3_lr15_UCMerced|
 
 
-Average: PSNR: 30.333430 dB, SSIM: 0.846653, SAM: 0.078025, QI: 0.994291, SCC: 0.426038
+## haunet_v4
+
 # Train
-```bash
+```bash  
 # x4
 python demo_train.py --model=HAUNET --dataset=UCMerced --scale=4 --patch_size=192 --ext=img --save=HAUNETx4_UCMerced 
 # x3

@@ -1,6 +1,6 @@
 """
-双分支: SAB+CA(通道注意力)
-flops: 7.2296G, params: 3.7419M
+双分支:CAB+CA(通道注意力)
+flops: 6.6560G, params: 3.7419M
 """
 import torch
 import torch.nn as nn
@@ -383,8 +383,6 @@ class lateral_nafblock_wjq(nn.Module):
 
         return outs
 
-
-
 class S_CEMBlock(nn.Module):
     def __init__(self, c, DW_Expand=2,num_heads=3, FFN_Expand=2, drop_out_rate=0.):
         """S-CEM模块
@@ -501,10 +499,10 @@ class S_CEMBlock_wjq(nn.Module):
         # SAB
         self.qkv = nn.Conv2d(c, c*3, kernel_size=1) # 1x1卷积升
         self.qkv_dwconv = nn.Conv2d(c*3, c*3, kernel_size=3, stride=1, padding=1, groups=c*3)
-        self.temperature2 = nn.Parameter(torch.ones(num_heads, 1, 1))
+        self.temperature = nn.Parameter(torch.ones(num_heads, 1, 1))
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=-1)
-        # CAB
+        # CA
         self.cab = CAB(c)
 
         # SAB和CAB的两个系数
@@ -526,7 +524,7 @@ class S_CEMBlock_wjq(nn.Module):
         x = self.norm1(x)
 
         # 通道注意力
-        outc = self.cab(x)
+        outca = self.cab(x)
         
         b, c, h, w = x.shape
         
@@ -539,21 +537,21 @@ class S_CEMBlock_wjq(nn.Module):
         ks = k.clone().permute(0, 1, 3, 2)
         vs = v.clone().permute(0, 1, 3, 2)
 
+        q = torch.nn.functional.normalize(q, dim=-1)
+        k = torch.nn.functional.normalize(k, dim=-1)
 
-        qs = torch.nn.functional.normalize(qs, dim=-1)
-        ks = torch.nn.functional.normalize(ks, dim=-1)
-        attns = (qs @ ks.transpose(-2, -1)) * self.temperature2
-        attns=self.relu(attns)
-        attns = self.softmax(attns)
-        outs = (attns @ vs)
-        outs = outs.permute(0, 1, 3, 2)  # 空间注意力的输出
-        outs = rearrange(outs, 'b head c (h w) -> b (head c) h w', head=self.num_heads, h=h, w=w)
+        attn = (q @ k.transpose(-2, -1)) * self.temperature
+        attn = self.relu(attn)
+        attn = self.softmax(attn)
+
+        outc= (attn @ v)
+        outc = rearrange(outc, 'b head c (h w) -> b (head c) h w', head=self.num_heads, h=h, w=w)
         # outc = rearrange(outc, 'b head c (h w) -> b (head c) h w', head=self.num_heads, h=h, w=w)
 
         xc = self.dropout1(outc)
-        xs = self.dropout2(outs)
+        xca = self.dropout2(outca)
 
-        y = inp + xc * self.beta + xs * self.beta2 
+        y = inp + xc * self.beta + xca * self.beta2 
 
         x = self.conv4(self.norm2(y))
         x = self.sg(x)
@@ -562,7 +560,6 @@ class S_CEMBlock_wjq(nn.Module):
         x = self.dropout2(x)
 
         return y + x * self.gamma
-        pass
 
 class CEMBlock(nn.Module):
     def __init__(self, c, DW_Expand=2,num_heads=3, FFN_Expand=2, drop_out_rate=0.):
