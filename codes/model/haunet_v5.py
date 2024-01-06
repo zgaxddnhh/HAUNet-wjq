@@ -385,7 +385,7 @@ class HAUNet(nn.Module):
         self.dec_middle_blks = \
             nn.Sequential(
                 *[S_CEMBlock_wjq(chan, num_heads=heads[ii]) for _ in range(middle_blk_num // 2)],
-                nn.Conv2d(chan, chan, 3, 1, 1)
+                #nn.Conv2d(chan, chan, 3, 1, 1)
             )
         ii=0
         for numii in range(len(dec_blk_nums)):
@@ -400,14 +400,14 @@ class HAUNet(nn.Module):
                 self.decoders.append(
                     nn.Sequential(
                         *[S_CEMBlock_wjq(chan, num_heads=heads[1 - ii]) for _ in range(num)],
-                        nn.Conv2d(chan, chan, 3, 1, 1)
+                        #nn.Conv2d(chan, chan, 3, 1, 1)
                     )
                 )
             else:
                 self.decoders.append(
                     nn.Sequential(
                         *[S_CEMBlock_wjq(chan, num_heads=heads[1 - ii]) for _ in range(num)],
-                        nn.Conv2d(chan, chan, 3, 1, 1)
+                        #nn.Conv2d(chan, chan, 3, 1, 1)
                     )
                 )
             ii += 1
