@@ -9,6 +9,7 @@ import loss
 import trainer
 import os 
 import datetime
+import traceback
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -41,10 +42,13 @@ if __name__ == '__main__':
         
 
         while not t.terminate():
-            t.train()
-            t.test()
-            writer.add_scalar("L1 loss",t.loss.log[-1].numpy(), t.scheduler.last_epoch)
-            writer.add_scalar("psnr",t.ckp.log[-1].numpy(), t.scheduler.last_epoch)
+            try:
+                t.train()
+                t.test()
+                writer.add_scalar("L1 loss",t.loss.log[-1].numpy(), t.scheduler.last_epoch)
+                writer.add_scalar("psnr",t.ckp.log[-1].numpy(), t.scheduler.last_epoch)
+            except:
+                 traceback.print_exc(file=open("/root/autodl-tmp/experiment/x4/"+ args.save + "/error.log",'a'))
 
     end = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
     t.ckp.write_log("end_time:" + end + '\n')
