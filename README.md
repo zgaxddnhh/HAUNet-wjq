@@ -111,6 +111,9 @@ Average: PSNR: 27.910537 dB, SSIM: 0.768060, SAM: 0.101240, QI: 0.990916, SCC: 0
 |UCx4 |HAUNet|27.768876|0.762650|0.272783|0.102916|x4/HAUNET_v3_UCMerced|
 
 
+## haunet_v5
+> haunet_v5因为设计出现问题，暂且搁置
+
 # Train
 ```bash  
 # x4

@@ -49,6 +49,7 @@ if __name__ == '__main__':
                 writer.add_scalar("psnr",t.ckp.log[-1].numpy(), t.scheduler.last_epoch)
             except:
                  traceback.print_exc(file=open("/root/autodl-tmp/experiment/x4/"+ args.save + "/error.log",'a'))
+                 break
 
     end = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
     t.ckp.write_log("end_time:" + end + '\n')
