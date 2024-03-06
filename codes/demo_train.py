@@ -26,10 +26,10 @@ def seed_torch(seed=1):
 
 if __name__ == '__main__':
     seed_torch(args.seed)
-    # os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "7"
     checkpoint = utils.checkpoint(args)
-    # writer = SummaryWriter("/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/x4/"+ args.save + "/runs")
-    writer = SummaryWriter("/root/autodl-tmp/experiment/x4/"+ args.save + "/runs")
+    writer = SummaryWriter("/mnt/wangjiaqi/experiment/x4/"+ args.save + "/runs")
+    # writer = SummaryWriter("/root/autodl-tmp/experiment/x4/"+ args.save + "/runs")
     if checkpoint.ok:
         dataloaders = data.create_dataloaders(args)   # dataloaders为一个dict
         sr_model = model.Model(args, checkpoint)
@@ -48,7 +48,7 @@ if __name__ == '__main__':
                 writer.add_scalar("L1 loss",t.loss.log[-1].numpy(), t.scheduler.last_epoch)
                 writer.add_scalar("psnr",t.ckp.log[-1].numpy(), t.scheduler.last_epoch)
             except:
-                 traceback.print_exc(file=open("/root/autodl-tmp/experiment/x4/"+ args.save + "/error.log",'a'))
+                 traceback.print_exc(file=open("/mnt/wangjiaqi/experiment/x4/"+ args.save + "/error.log",'a'))
                  break
 
     end = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')

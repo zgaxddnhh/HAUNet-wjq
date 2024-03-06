@@ -16,10 +16,10 @@ def main():
     # Gen: Generated / Restored / Recovered images
     # folder_GT = '/home/wjq/wjqHD/RSISR/datasets/HAUNet/UCMerced-dataset/test/HR_x3'
     # folder_Gen = '/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/HAUNETx3_UCMerced_42/results'
-    folder_GT = '/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/HR_x2'
-    folder_Gen = '/root/autodl-tmp/experiment/HAUNETx2_UCMerced_1/results'
+    folder_GT = '/mnt/wangjiaqi/UCMerced-dataset/test/HR_x4'
+    folder_Gen = '/mnt/wangjiaqi/experiment/x4/HAUNET_V6_UCMerced_V2/results'
 
-    crop_border = 2  # same with scale
+    crop_border = 4  # same with scale
     suffix = ''  # suffix for Gen images
     test_Y = False  # True: test Y channel only; False: test RGB channels
 

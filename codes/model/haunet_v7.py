@@ -1,6 +1,6 @@
 """
 原始:flops: 6.1829 G, params: 2.6326 M
-现在:flops: 7.5859 G, params: 4.0030 M
+现在:flops: 8.8222 G, params: 4.2398 M
 """
 import torch
 import torch.nn as nn
@@ -348,9 +348,16 @@ class S_CEMBlock(nn.Module):
         self.relu=nn.ReLU()
         self.softmax = nn.Softmax(dim=-1)
 
+        # self.conv_scale = 0.01
+        self.conv_block = CAB(num_feat=c, compress_ratio=3, squeeze_factor=16)  # Q: change 4
+
     def forward(self, inp):
         x = inp
         x = self.norm1(x)  # layernorm
+
+        # 上分支 卷积分支
+        conv_x = self.conv_block(x)
+
         b, c, h, w = x.shape
         qkv = self.qkv_dwconv(self.qkv(x))
         q, k, v = qkv.chunk(3, dim=1)  # 沿1轴切分为3块
@@ -362,14 +369,14 @@ class S_CEMBlock(nn.Module):
         ks = k.clone().permute(0, 1, 3, 2)
         vs = v.clone().permute(0, 1, 3, 2)
 
-        q = torch.nn.functional.normalize(q, dim=-1)
-        k = torch.nn.functional.normalize(k, dim=-1)
+        # q = torch.nn.functional.normalize(q, dim=-1)
+        # k = torch.nn.functional.normalize(k, dim=-1)
 
-        attn = (q @ k.transpose(-2, -1)) * self.temperature
-        attn=self.relu(attn)
-        attn = self.softmax(attn)
+        # attn = (q @ k.transpose(-2, -1)) * self.temperature
+        # attn=self.relu(attn)
+        # attn = self.softmax(attn)
 
-        outc = (attn @ v)  # 通道注意力的输出
+        # outc = (attn @ v)  # 通道注意力的输出
 
         qs = torch.nn.functional.normalize(qs, dim=-1)
         ks = torch.nn.functional.normalize(ks, dim=-1)
@@ -380,15 +387,15 @@ class S_CEMBlock(nn.Module):
         outs = (attns @ vs)
         outs = outs.permute(0, 1, 3, 2)  # 空间注意力的输出
 
-        outc = rearrange(outc, 'b head c (h w) -> b (head c) h w', head=self.num_heads, h=h, w=w)
+        # outc = rearrange(outc, 'b head c (h w) -> b (head c) h w', head=self.num_heads, h=h, w=w)
         outs = rearrange(outs, 'b head c (h w) -> b (head c) h w', head=self.num_heads, h=h, w=w)
 
-        xc = self.project_out(outc)  # 
-        xc = self.dropout1(xc)
+        # xc = self.project_out(outc)  # 
+        # xc = self.dropout1(xc)
         xs = self.project_out2(outs)
         xs = self.dropout1(xs)
 
-        y = inp + xc * self.beta+ xs * self.beta2  # 加和
+        y = inp + conv_x * self.beta+ xs * self.beta2  # 加和
 
         x = self.conv4(self.norm2(y))
         x = self.sg(x)
@@ -542,13 +549,13 @@ class HAUNet(nn.Module):
             if numii < 1:
                 self.encoders.append(
                     nn.Sequential(
-                        *[CEMBlock(chan, num_heads=heads[ii]) for _ in range(num)]
+                        *[S_CEMBlock(chan, num_heads=heads[ii]) for _ in range(num)]
                     )
                 )
             else:
                 self.encoders.append(
                     nn.Sequential(
-                        *[CEMBlock(chan, num_heads=heads[ii]) for _ in range(num)]
+                        *[S_CEMBlock(chan, num_heads=heads[ii]) for _ in range(num)]
                     )
                 )
             self.downs.append(
@@ -558,11 +565,11 @@ class HAUNet(nn.Module):
         self.lateral_nafblock = lateral_nafblock(chan)
         self.enc_middle_blks = \
             nn.Sequential(
-                *[CEMBlock(chan, num_heads=heads[ii]) for _ in range(middle_blk_num // 2)]
+                *[S_CEMBlock(chan, num_heads=heads[ii]) for _ in range(middle_blk_num // 2)]
             )
         self.dec_middle_blks = \
             nn.Sequential(
-                *[CEMBlock(chan, num_heads=heads[ii]) for _ in range(middle_blk_num // 2)]
+                *[S_CEMBlock(chan, num_heads=heads[ii]) for _ in range(middle_blk_num // 2)]
             )
         ii=0
         for numii in range(len(dec_blk_nums)):
@@ -596,17 +603,18 @@ class HAUNet(nn.Module):
         self.up_scale = up_scale
 
     def forward(self, inp):
-        inp_hr = F.interpolate(inp, scale_factor=self.up_scale, mode='bilinear')
+        # inp_hr = F.interpolate(inp, scale_factor=self.up_scale, mode='bilinear')  # Q: change 1
         x = self.intro(inp)
+        shallow = x
 
         encs = []
 
         for encoder, down in zip(self.encoders, self.downs):
-            x = encoder(x)
+            x = x + encoder(x)   # Q: change 2
             encs.append(x)  # Encoder的输出结果存起来
             x = down(x)
 
-        x = self.enc_middle_blks(x)    # 第三个encoder
+        x = x+ self.enc_middle_blks(x)    # 第三个encoder # Q: change 2
         encs.append(x)  # 三个encoder的输出
         outs = self.lateral_nafblock(encs)
         x = outs[-1]
@@ -615,10 +623,11 @@ class HAUNet(nn.Module):
         for decoder, up, enc_skip in zip(self.decoders, self.ups, outs2[::-1]):
             x = up(x)
             x = x + enc_skip
-            x = decoder(x)
-        
+            x = x + decoder(x)  # Q: change 3
+         
+        x = x + shallow
         x = self.up(x)
-        x = x + inp_hr
+        # x = x + inp_hr  # Q: change 1
 
         return x
 

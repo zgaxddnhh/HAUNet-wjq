@@ -114,10 +114,46 @@ Average: PSNR: 27.910537 dB, SSIM: 0.768060, SAM: 0.101240, QI: 0.990916, SCC: 0
 ## haunet_v5
 > haunet_v5因为设计出现问题，暂且搁置
 
+## haunet_v6
+> 暂停掉v5的设计，因为v5并没有使用原论文中的cim模块
+
+现在暂时的思路是：保持原网络的结构，只修改encoder和decoder模块，如果结果提升的话，则在此基础上修改CIM模块。
+
+### 第一次
+1. Encoder和Decoder全部使用CEM_block
+2. 在CEM中添加卷积分支
+
+在800epoch之前疯狂抖动，如果800epoch以后psnr一直在上升，则表明，800轮之前的学习率太大了(猜测)
+lr = 16e-4 T_max = 1500 epoch = 2000
+
+> 本次实验因为中途程序错误导致无结果，但是猜测(学习率太大)应是真的
+
+### 第二次
+如果第一次结果较好，则考虑第二次减小学习率重新运行。
+考虑是否将输入大小放为64*64。
+input_size=64  lr = 13e-4 T_max = 800  epoch = 1000(实验中错误设置成了2000)
+
+|scale|model|PSNR|SSIM|SCC|SAM|location|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|UCx4 |HAUNet|27.861824|0.766239|0.277066|0.101942|x4/HAUNET_v6_UCMerced_v2|
+
+
+## haunet_v7
+
+## 
+如果v6的结果比较好，则考虑在encoder和decoder中加上跳跃连接，同时考虑是否要将最外层的跳跃连接移至3x3卷积后。
+
+input_size=64 lr=13e-4 T_max=1000 epoch = 1500
+
+验证下64和48输入的区别？
+
+结果：训练结果不好。猜想很大一部分原因是因为把最外层的跳跃连接移至3x3卷积后。
+
+
 # Train
 ```bash  
 # x4
-python demo_train.py --model=HAUNET --dataset=UCMerced --scale=4 --patch_size=192 --ext=img --save=HAUNETx4_UCMerced 
+python demo_train.py --model=HAUNET --dataset=UCMerced --scale=4 --patch_size=192 --ext=img --save=HAUNET_V6_UCMerced 
 # x3
 python demo_train.py --model=HAUNET --dataset=UCMerced --scale=3 --patch_size=144 --ext=img --save=HAUNETx3_UCMerced
 # x2
