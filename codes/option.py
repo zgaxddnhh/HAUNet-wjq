@@ -51,7 +51,7 @@ parser.add_argument('--test_y', action='store_true', default=False,
                     help='test on Y channel')
 parser.add_argument('--test_patch', action='store_true', default=False,
                     help='test on patches rather than the whole image')
-parser.add_argument('--test_block', action='store_true', default=True,
+parser.add_argument('--test_block', action='store_true', default=False,
                     help='test by blcok-by-block')
 
 # model specifications
@@ -83,7 +83,7 @@ parser.add_argument('--de_depth', type=int, default=1,
 # training specifications
 parser.add_argument('--reset', action='store_true', default=False,  
                     help='reset the training')  # 删除文件夹重新训练
-parser.add_argument('--epochs', type=int, default=1500,
+parser.add_argument('--epochs', type=int, default=2000,
                     help='number of epochs to train')
 parser.add_argument('--batch_size', type=int, default=16,
                     help='input batch size for training') # 之前为4，现在设为8
@@ -97,11 +97,11 @@ parser.add_argument('--test_metric', type=str, default='psnr',
                     help='for best model selection in test phase (psnr, ssim)')
 
 # optimization specifications
-parser.add_argument('--lr', type=float, default=15e-4,
+parser.add_argument('--lr', type=float, default=13e-4,
                     help='learning rate')
 parser.add_argument('--eta_min', type=float, default=1e-7,
                     help='learning rate')  # 最小的学习率
-parser.add_argument('--T_max', type=float, default=1000,
+parser.add_argument('--T_max', type=float, default=1500,
                     help='learning rate')  # 经过多少个epoch到达1/2周期
 parser.add_argument('--lr_decay', type=int, default=400,
                     help='learning rate decay per N epochs')

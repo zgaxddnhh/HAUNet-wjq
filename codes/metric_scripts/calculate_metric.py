@@ -17,7 +17,7 @@ def main():
     # folder_GT = '/home/wjq/wjqHD/RSISR/datasets/HAUNet/UCMerced-dataset/test/HR_x3'
     # folder_Gen = '/home/wjq/wjqHD/RSISR/HAUNet-wjq/experiment/HAUNETx3_UCMerced_42/results'
     folder_GT = '/mnt/wangjiaqi/UCMerced-dataset/test/HR_x4'
-    folder_Gen = '/mnt/wangjiaqi/experiment/x4/HAUNET_V6_UCMerced_V2/results'
+    folder_Gen = '/mnt/wangjiaqi/experiment/x4/HAUNET_V8_UCMerced_10/results'
 
     crop_border = 4  # same with scale
     suffix = ''  # suffix for Gen images

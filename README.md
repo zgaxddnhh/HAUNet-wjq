@@ -140,15 +140,84 @@ input_size=64  lr = 13e-4 T_max = 800  epoch = 1000(实验中错误设置成了2
 
 ## haunet_v7
 
-## 
+### 第一次
 如果v6的结果比较好，则考虑在encoder和decoder中加上跳跃连接，同时考虑是否要将最外层的跳跃连接移至3x3卷积后。
 
-input_size=64 lr=13e-4 T_max=1000 epoch = 1500
+input_size=64 lr=15e-4 T_max=1000 epoch = 1500
 
-验证下64和48输入的区别？
+验证下64和48输入的区别？# TODO 未验证
 
 结果：训练结果不好。猜想很大一部分原因是因为把最外层的跳跃连接移至3x3卷积后。
 
+### 第二次
+input_size=64 lr=13e-4 T_max=1500 epoch = 2000
+
+重新放回最外层的跳跃连接，encoder和decoder里的跳跃连接保持不变。将卷积通道的系数改为固定值。 
+
+这次同时跑两个模型：两者唯一的差别是：haunet-v7使用SCEM，haunet-v7_v1使用CEM()
+
+我想验证的是：SCEM和CEM哪个对网络效果更好
+
+> 要测一个不使用卷积的性能。
+
+#### haunet_v7_v2
+使用SCEM
+Average: PSNR: 27.860599 dB, SSIM: 0.765803, SAM: 0.101853, QI: 0.990778, SCC: 0.278911 (no block)
+Average: PSNR: 27.860599 dB, SSIM: 0.765803, SAM: 0.101853, QI: 0.990778, SCC: 0.278911（block）
+
+#### haunet_v7_v3
+使用CEM
+Average: PSNR: 27.765209 dB, SSIM: 0.762170, SAM: 0.103030, QI: 0.990597, SCC: 0.269128
+
+> 得出的结论：使用S-CEM要好一点
+
+# haunet_v8
+## haunet_v8_1
+无卷积，有残差
+参数设置：lr=13e-4, path_size = 48, epoch=2000，T_max = 1500
+Average: PSNR: 27.548382 dB, SSIM: 0.753858, SAM: 0.105304, QI: 0.990232, SCC: 0.250330
+## haunet_v8_2
+有卷积，有残差
+Average: PSNR: 27.869319 dB, SSIM: 0.765687, SAM: 0.101730, QI: 0.990815, SCC: 0.277213
+## haunet_v8_3(中止)
+加上卷积，无残差。(代码中其实是无卷积，无残差)
+
+Average: PSNR: 28.017739 dB, SSIM: 0.771540, SAM: 0.099930, QI: 0.991105, SCC: 0.291318
+
+## haunet_v8_4实验结果应该和v8_3一样
+无卷积，无残差
+Average: PSNR: 27.970021 dB, SSIM: 0.769903, SAM: 0.100517, QI: 0.990996, SCC: 0.287892
+## haunet_v8_5
+有卷积，无残差
+Average: PSNR: 27.985020 dB, SSIM: 0.769990, SAM: 0.100554, QI: 0.990992, SCC: 0.288689
+
+从以上5次实验得出一个结论：无残差的效果要好一点。所以接下来的baseline就是：使用S-CEM，无残差，添加不同的卷积模块。
+
+## haunet_v8_6
+有卷积，卷积加和的系数是动态的。
+Average: PSNR: 27.938899 dB, SSIM: 0.769000, SAM: 0.100937, QI: 0.990950, SCC: 0.286650
+## haunet_v8_7
+有卷积，卷积加和的系数是动态的。c改为64（这个很重要）
+Average: PSNR: 27.926450 dB, SSIM: 0.767927, SAM: 0.101104, QI: 0.990921, SCC: 0.284794
+
+## haunet_v8_8
+有卷积，卷积与Trans直接相加。 效果不好
+
+## haunet_v8_9
+有卷积(PA),卷积与Trans直接相加。效果不好
+
+## haunet_v8_10
+有卷积PA
+Average: PSNR: 27.964212 dB, SSIM: 0.769969, SAM: 0.100735, QI: 0.990929, SCC: 0.287753
+## haunet_v8_11
+有卷积，c改为128
+因为自己的误操作，可能导致没有保存权重，但是从过程来看，在训练集上最高的psnr=？
+
+## haunet_v8_12
+有卷积PA，动态系数相加，效果和0.01相比差不多
+
+## haunet_v8_13
+有卷积PA，输入大小为64*64,效果能差一点
 
 # Train
 ```bash  
@@ -170,9 +239,11 @@ python demo_deploy.py --scale=2 --model=HAUNET_WJQ --patch_size=128 --test_block
 # x3
 python demo_deploy.py --scale=3 --model=HAUNET --patch_size=192 --test_block --pre_train=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/model/model_best.pt --dir_data=/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/LR_x3 --dir_out=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results
 # x4
-python demo_deploy.py --scale=4 --model=HAUNET_WJQ --patch_size=256 --test_block --pre_train=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/model/model_best.pt --dir_data=/root/autodl-tmp/datasets/HAUNet/UCMerced-dataset/test/LR_x4 --dir_out=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results
+python demo_deploy.py --scale=4 --model=HAUNET_WJQ --patch_size=256 --test_block --pre_train=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/model/model_best.pt --dir_data=/mnt/wangjiaqi/UCMerced-dataset/test/LR_x4 --dir_out=/root/autodl-tmp/experiment/HAUNETWJQx2_UCMerced/results
 ```
 以`64x64`为block进行测试。2倍时`pathch_size=128`，3倍时`patch_size=192`，4倍时`patch_size=256`。
+
+`--test_block`参数代表分块推理。
 
 # 评估指标
 ```bash
@@ -181,7 +252,7 @@ python calculate_metric.py
 ```
 
 # 实验结论
-1. 无论是使用插值，还是硬train一发，对结果影响不大。
+1. 无论是使用插值，还是硬train一发，对结果影响不大。（插值在使用跳跃连接时效果能好一点）
 2. 对通道注意力使用残差连接的影响？
 3. 将unsample换为转置卷积的影响
 4. 在卷积后面添加激活函数的影响

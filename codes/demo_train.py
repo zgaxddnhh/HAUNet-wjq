@@ -26,7 +26,7 @@ def seed_torch(seed=1):
 
 if __name__ == '__main__':
     seed_torch(args.seed)
-    os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "6"
     checkpoint = utils.checkpoint(args)
     writer = SummaryWriter("/mnt/wangjiaqi/experiment/x4/"+ args.save + "/runs")
     # writer = SummaryWriter("/root/autodl-tmp/experiment/x4/"+ args.save + "/runs")

@@ -36,6 +36,7 @@ def deploy(args, sr_model):
             lr = common.np2Tensor([lr_np], args.rgb_range)[0].unsqueeze(0) # [1,3,128,128]
 
             if args.test_block:
+                print("================")
                 # test block-by-block
 
                 b, c, h, w = lr.shape

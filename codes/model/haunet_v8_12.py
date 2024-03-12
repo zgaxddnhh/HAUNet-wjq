@@ -1,6 +1,6 @@
 """
 原始:flops: 6.1829 G, params: 2.6326 M
-现在:flops: 8.8222 G, params: 4.2398 M
+现在:flops: 7.5759 G, params: 3.9343 M
 """
 import torch
 import torch.nn as nn
@@ -304,7 +304,14 @@ class lateral_nafblock(nn.Module):  # CIM模块
             outs=qkv(outs)
         return outs
     
+class lateral_nafblock_wjq(nn.Module):  # CIM模块
+    def __init__(self, c, num_heads=3,num_block=1):
+        super().__init__()
 
+    def forward(self, encs):
+        outs=encs
+        return outs
+    
 
 class S_CEMBlock(nn.Module):
     def __init__(self, c, DW_Expand=2,num_heads=3, FFN_Expand=2, drop_out_rate=0.):
@@ -345,18 +352,20 @@ class S_CEMBlock(nn.Module):
         self.beta = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
         self.beta2 = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
         self.gamma = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
-        self.relu=nn.ReLU()
+        self.gelu=nn.GELU()
         self.softmax = nn.Softmax(dim=-1)
 
         self.conv_scale = 0.01
-        self.conv_block = CAB(num_feat=c, compress_ratio=3, squeeze_factor=16)  # Q: change 4
+        # self.conv_block = CAB(num_feat=c, compress_ratio=3, squeeze_factor=16)  # Q: change 4
+
+        self.pa = PA(nf=c)
 
     def forward(self, inp):
         x = inp
         x = self.norm1(x)  # layernorm
 
         # 上分支 卷积分支
-        conv_x = self.conv_block(x)
+        conv_x = self.pa(x)
 
         b, c, h, w = x.shape
         qkv = self.qkv_dwconv(self.qkv(x))
@@ -382,7 +391,7 @@ class S_CEMBlock(nn.Module):
         ks = torch.nn.functional.normalize(ks, dim=-1)
 
         attns = (qs @ ks.transpose(-2, -1)) * self.temperature2
-        attns=self.relu(attns)
+        attns=self.gelu(attns)
         attns = self.softmax(attns)
         outs = (attns @ vs)
         outs = outs.permute(0, 1, 3, 2)  # 空间注意力的输出
@@ -395,7 +404,8 @@ class S_CEMBlock(nn.Module):
         xs = self.project_out2(outs)
         xs = self.dropout1(xs)
 
-        y = inp + conv_x * self.conv_scale + xs * self.beta2  # 加和
+        # y = inp + conv_x * self.conv_scale + xs * self.beta2  # 加和
+        y = inp + conv_x * self.beta + xs * self.beta2  # 加和
 
         x = self.conv4(self.norm2(y))
         x = self.sg(x)
@@ -440,82 +450,22 @@ class CAB(nn.Module):
 
     def forward(self, x):
         return self.cab(x)
+class PA(nn.Module):
+    '''PA is pixel attention'''
+    def __init__(self, nf):
 
+        super(PA, self).__init__()
+        self.conv = nn.Conv2d(nf, nf, 1)
+        self.sigmoid = nn.Sigmoid()
 
-# class CEMBlock(nn.Module):
-#     def __init__(self, c, DW_Expand=2,num_heads=3, FFN_Expand=2, drop_out_rate=0.):
-#         super().__init__()
-#         self.num_heads = num_heads
+    def forward(self, x):
 
-#         self.qkv = nn.Conv2d(c, c * 3, kernel_size=1)
-#         self.qkv_dwconv = nn.Conv2d(c * 3, c * 3, 3, padding=1, groups=c * 3)
-#         self.project_out = nn.Conv2d(c, c, kernel_size=1)
-#         self.temperature = nn.Parameter(torch.ones(num_heads, 1, 1))
-#         # SimpleGate
-#         self.sg = SimpleGate()
+        y = self.conv(x)
+        y = self.sigmoid(y)
+        out = torch.mul(x, y)
 
-#         ffn_channel = FFN_Expand * c
-#         self.conv4 = nn.Conv2d(in_channels=c, out_channels=ffn_channel, kernel_size=1, padding=0, stride=1, groups=1,
-#                                bias=True)
-#         self.conv5 = nn.Conv2d(in_channels=ffn_channel // 2, out_channels=c, kernel_size=1, padding=0, stride=1,
-#                                groups=1, bias=True)
+        return out
 
-#         self.norm1 = LayerNorm2d(c)
-#         self.norm2 = LayerNorm2d(c)
-
-#         self.dropout1 = nn.Dropout(drop_out_rate) if drop_out_rate > 0. else nn.Identity()
-#         self.dropout2 = nn.Dropout(drop_out_rate) if drop_out_rate > 0. else nn.Identity()
-
-#         self.beta = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
-#         self.gamma = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
-#         # self.relu = nn.ReLU()  #修改卷积为nn.GELU
-#         self.relu = nn.GELU()
-#         self.softmax=nn.Softmax(dim=-1)
-
-#         # 卷积
-#         self.conv_scale = 0.01
-#         self.conv_block = CAB(num_feat=c, compress_ratio=3, squeeze_factor=16)
-
-
-#     def forward(self, inp):
-#         x = inp
-#         x = self.norm1(x)
-#         # 上分支 CAS
-#         conv_x = self.conv_block(x)
-
-#         # 下分支 Transformer
-#         b, c, h, w = x.shape
-#         qkv = self.qkv_dwconv(self.qkv(x))
-#         q, k, v = qkv.chunk(3, dim=1)
-
-#         q = rearrange(q, 'b (head c) h w -> b head c (h w)', head=self.num_heads)
-#         k = rearrange(k, 'b (head c) h w -> b head c (h w)', head=self.num_heads)
-#         v = rearrange(v, 'b (head c) h w -> b head c (h w)', head=self.num_heads)
-
-#         q = torch.nn.functional.normalize(q, dim=-1)
-#         k = torch.nn.functional.normalize(k, dim=-1)
-
-#         attn = (q @ k.transpose(-2, -1)) * self.temperature
-#         attn = self.relu(attn)
-#         attn=self.softmax(attn)
-
-#         out = (attn @ v)
-
-#         out = rearrange(out, 'b head c (h w) -> b (head c) h w', head=self.num_heads, h=h, w=w)
-
-#         x = self.project_out(out)
-#         x = self.dropout1(x)
-
-#         y = inp + x * self.beta + conv_x * self.conv_scale
-
-#         x = self.conv4(self.norm2(y))
-#         x = self.sg(x)
-#         x = self.conv5(x)
-
-#         x = self.dropout2(x)
-
-#         return y + x * self.gamma
-    
 class HAUNet(nn.Module):
 
     def __init__(self, up_scale=4, img_channel=3, width=180, middle_blk_num=10, enc_blk_nums=[5,5], dec_blk_nums=[5,5], heads = [1,2,4],):
@@ -544,8 +494,8 @@ class HAUNet(nn.Module):
 
         chan = width  # width传入为96
         ii=0
-        for numii in range(len(enc_blk_nums)):
-            num = enc_blk_nums[numii]
+        for numii in range(len(enc_blk_nums)):  # len(enc_blk_nums)=2
+            num = enc_blk_nums[numii]  # 5
             if numii < 1:
                 self.encoders.append(
                     nn.Sequential(
@@ -562,7 +512,7 @@ class HAUNet(nn.Module):
                 nn.Conv2d(chan, chan, 2, 2)
             )
             ii+=1
-        self.lateral_nafblock = lateral_nafblock(chan)
+        self.lateral_nafblock = lateral_nafblock_wjq(chan)
         self.enc_middle_blks = \
             nn.Sequential(
                 *[S_CEMBlock(chan, num_heads=heads[ii]) for _ in range(middle_blk_num // 2)]
@@ -610,11 +560,11 @@ class HAUNet(nn.Module):
         encs = []
 
         for encoder, down in zip(self.encoders, self.downs):
-            x = x + encoder(x)   # Q: change 2
+            x = encoder(x)   # Q: change 2
             encs.append(x)  # Encoder的输出结果存起来
             x = down(x)
 
-        x = x+ self.enc_middle_blks(x)    # 第三个encoder # Q: change 2
+        x = self.enc_middle_blks(x)    # 第三个encoder # Q: change 2
         encs.append(x)  # 三个encoder的输出
         outs = self.lateral_nafblock(encs)
         x = outs[-1]
@@ -623,7 +573,7 @@ class HAUNet(nn.Module):
         for decoder, up, enc_skip in zip(self.decoders, self.ups, outs2[::-1]):
             x = up(x)
             x = x + enc_skip
-            x = x + decoder(x)  # Q: change 3
+            x = decoder(x)  # Q: change 3
          
         # x = x + shallow
         x = self.up(x)
